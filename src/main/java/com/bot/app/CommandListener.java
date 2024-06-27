@@ -1,6 +1,8 @@
 package com.bot.app;
 
+import com.bot.app.lavaplayer.PlayerManager;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.GuildVoiceState;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.User;
@@ -35,12 +37,20 @@ public class CommandListener extends ListenerAdapter
                     //TODO: exception
                     return;
                 }
-                play(event, command[1]);
+                connectToVc(event);
+                play(event.getGuild(), command[1]);
                 break;
             case "!dc":
                 disconnect(event);
                 break;
+            case "!skip":
+                skip(event);
         }
+    }
+
+    private void skip(MessageReceivedEvent event) {
+        PlayerManager playerManager = PlayerManager.get();
+        playerManager.skip(event.getGuild());
     }
 
     private void disconnect(MessageReceivedEvent event) {
@@ -54,19 +64,32 @@ public class CommandListener extends ListenerAdapter
 
     //TODO: add exceptions and handling
     //TODO: add logging
-    private void play(MessageReceivedEvent event, String url) {
+    private void connectToVc(MessageReceivedEvent event) {
         Guild guild = event.getGuild();
-        Member member = event.getMessage().getMember();
-        if (member == null) {
+        Member member = event.getMember();
+        GuildVoiceState memberVoiceState = member.getVoiceState();
+        if (!memberVoiceState.inAudioChannel()) {
+            informUserNotInVc(event.getChannel(), member.getUser());
             return;
         }
-        if (member.getVoiceState() == null || member.getVoiceState().getChannel() == null) {
-            informUserNotInVc(event.getChannel(), member.getUser());
+
+        Member self = event.getGuild().getSelfMember();
+        GuildVoiceState selfVoiceState = self.getVoiceState();
+
+        if (!selfVoiceState.inAudioChannel()) {
+            VoiceChannel vc = (VoiceChannel) memberVoiceState.getChannel();   //don't use .asVoiceChannel(), creates null pointer exception
+            AudioManager manager = guild.getAudioManager();
+            manager.openAudioConnection(vc);
+        } else {
+            if (selfVoiceState.getChannel() != memberVoiceState.getChannel()) {
+                informUserNotInSameVc(event.getChannel(), member.getUser());
+            }
         }
-        VoiceChannel vc = (VoiceChannel) member.getVoiceState().getChannel();   //don't use .asVoiceChannel(), creates null pointer exception
-        AudioManager manager = guild.getAudioManager();
-        //manager.setSendingHandler(new MyHandler)
-        manager.openAudioConnection(vc);
+    }
+
+    private void play(Guild guild, String url) {
+        PlayerManager playerManager = PlayerManager.get();
+        playerManager.play(guild, url);
     }
 
     private void informUserNotInVc(MessageChannel channel, User user) {
@@ -75,5 +98,10 @@ public class CommandListener extends ListenerAdapter
         channel.sendMessage(message).queue();
     }
 
+    private void informUserNotInSameVc(MessageChannel channel, User user) {
+        String id = user.getId();
+        String message = String.format("User <@%s> is not in the same voice channel as bot.", id);
+        channel.sendMessage(message).queue();
+    }
 
 }
