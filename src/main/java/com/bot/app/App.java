@@ -13,8 +13,12 @@ public class App
     public static void main( String[] args )
     {
 
-        JDA api = JDABuilder.createLight(BOT_TOKEN, GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGES)
-                .addEventListeners(new MyListener())
+        JDA api = JDABuilder.createDefault(BOT_TOKEN)
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.GUILD_MESSAGES,
+                        GatewayIntent.GUILD_MEMBERS,
+                        GatewayIntent.GUILD_VOICE_STATES)
+                .addEventListeners(new CommandListener())
                 .build();
     }
 }
