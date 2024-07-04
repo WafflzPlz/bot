@@ -54,6 +54,11 @@ public class CommandListener extends ListenerAdapter
     }
 
     private void disconnect(MessageReceivedEvent event) {
+
+        PlayerManager playerManager = PlayerManager.get();
+        playerManager.stopTrack(event.getGuild());
+        playerManager.emptyQueue(event.getGuild());
+
         Guild guild = event.getGuild();
         AudioManager manager = guild.getAudioManager();
         manager.closeAudioConnection();

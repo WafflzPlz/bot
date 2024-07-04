@@ -1,5 +1,7 @@
 package com.bot.app.lavaplayer;
 
+import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
+import com.github.topi314.lavasrc.youtube.YoutubeSourceManagerKt;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -7,6 +9,8 @@ import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
+import dev.lavalink.youtube.YoutubeAudioSourceManager;
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.Guild;
 
 import java.util.HashMap;
@@ -18,9 +22,18 @@ public class PlayerManager {
     private final Map<Long, GuildMusicManager> guildMusicManagerMap = new HashMap<>();
     private final AudioPlayerManager audioPlayerManager = new DefaultAudioPlayerManager();
 
+    private static final Dotenv dotenv = Dotenv.load();
+    private static final String SPOTIFY_CLIENT_ID = dotenv.get("SPOTIFY_CLIENT_ID");
+    private static final String SPOTIFY_CLIENT_SECRET = dotenv.get("SPOTIFY_CLIENT_SECRET");
+
     public PlayerManager() {
+        SpotifySourceManager spotifySourceManager = new SpotifySourceManager(null, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, "AUT", audioPlayerManager);
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager();
+
+        audioPlayerManager.registerSourceManager(spotifySourceManager);
+        audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
+
         AudioSourceManagers.registerRemoteSources(audioPlayerManager);
-        AudioSourceManagers.registerLocalSource(audioPlayerManager);
     }
 
     public static PlayerManager get() {
@@ -66,5 +79,15 @@ public class PlayerManager {
     public void skip(Guild guild) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
         guildMusicManager.getTrackScheduler().skip();
+    }
+
+    public void stopTrack(Guild guild) {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        guildMusicManager.getTrackScheduler().stopTrack();
+    }
+
+    public void emptyQueue(Guild guild) {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        guildMusicManager.getTrackScheduler().emptyQueue();
     }
 }
