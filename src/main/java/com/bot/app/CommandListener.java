@@ -45,7 +45,24 @@ public class CommandListener extends ListenerAdapter
                 break;
             case "!skip":
                 skip(event);
+                break;
+            case "!pause":
+                pause(event);
+                break;
+            case "!resume":
+                resume(event);
+                break;
         }
+    }
+
+    private void resume(MessageReceivedEvent event) {
+        PlayerManager playerManager = PlayerManager.get();
+        playerManager.resume(event.getGuild());
+    }
+
+    private void pause(MessageReceivedEvent event) {
+        PlayerManager playerManager = PlayerManager.get();
+        playerManager.pause(event.getGuild());
     }
 
     private void skip(MessageReceivedEvent event) {
@@ -56,8 +73,7 @@ public class CommandListener extends ListenerAdapter
     private void disconnect(MessageReceivedEvent event) {
 
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.stopTrack(event.getGuild());
-        playerManager.emptyQueue(event.getGuild());
+        playerManager.destroy(event.getGuild());
 
         Guild guild = event.getGuild();
         AudioManager manager = guild.getAudioManager();

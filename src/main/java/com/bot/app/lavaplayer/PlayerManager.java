@@ -1,7 +1,6 @@
 package com.bot.app.lavaplayer;
 
 import com.github.topi314.lavasrc.spotify.SpotifySourceManager;
-import com.github.topi314.lavasrc.youtube.YoutubeSourceManagerKt;
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -59,9 +58,12 @@ public class PlayerManager {
                 guildMusicManager.getTrackScheduler().queue(audioTrack);
             }
 
+            //TODO: not working currently
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
-
+                for (AudioTrack track : audioPlaylist.getTracks()) {
+                    guildMusicManager.getTrackScheduler().queue(track);
+                }
             }
 
             @Override
@@ -76,14 +78,24 @@ public class PlayerManager {
         });
     }
 
+    public void destroy(Guild guild) {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        guildMusicManager.getTrackScheduler().destroy();
+    }
+
     public void skip(Guild guild) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
         guildMusicManager.getTrackScheduler().skip();
     }
 
-    public void stopTrack(Guild guild) {
+    public void pause(Guild guild) {
         GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
-        guildMusicManager.getTrackScheduler().stopTrack();
+        guildMusicManager.getTrackScheduler().pause();
+    }
+
+    public void resume(Guild guild) {
+        GuildMusicManager guildMusicManager = getGuildMusicManager(guild);
+        guildMusicManager.getTrackScheduler().resume();
     }
 
     public void emptyQueue(Guild guild) {

@@ -34,8 +34,16 @@ public class TrackScheduler extends AudioEventAdapter {
         this.queue = new LinkedBlockingDeque<>();
     }
 
-    public void stopTrack() {
-        player.stopTrack();
+    public void destroy() {
+        player.destroy();
+    }
+
+    public void pause() {
+        player.setPaused(true);
+    }
+
+    public void resume() {
+        player.setPaused(false);
     }
 
     public void skip() {
