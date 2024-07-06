@@ -11,7 +11,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 public class TrackScheduler extends AudioEventAdapter {
 
     private final AudioPlayer player;
-    private final BlockingDeque<AudioTrack> queue = new LinkedBlockingDeque<>();
+    private BlockingDeque<AudioTrack> queue = new LinkedBlockingDeque<>();
 
     public TrackScheduler(AudioPlayer player) {
         this.player = player;
@@ -28,6 +28,22 @@ public class TrackScheduler extends AudioEventAdapter {
         if (!player.startTrack(track, true)) {
             queue.offer(track);
         }
+    }
+
+    public void emptyQueue() {
+        this.queue = new LinkedBlockingDeque<>();
+    }
+
+    public void destroy() {
+        player.destroy();
+    }
+
+    public void pause() {
+        player.setPaused(true);
+    }
+
+    public void resume() {
+        player.setPaused(false);
     }
 
     public void skip() {
