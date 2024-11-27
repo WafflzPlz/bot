@@ -18,6 +18,7 @@ public class CommandGenerator {
             case "!skip" -> new SkipCommand(event);
             case "!pause" -> new PauseCommand(event);
             case "!resume" -> new ResumeCommand(event);
+            case "!hello" -> new HelloCommand(event);
             default -> throw new CommandNotFoundException(splice[0]);
         };
 

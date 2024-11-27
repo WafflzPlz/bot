@@ -12,7 +12,6 @@ public class App
 
     public static void main( String[] args )
     {
-
         JDA api = JDABuilder.createDefault(BOT_TOKEN)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_MESSAGES,
