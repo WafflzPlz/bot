@@ -58,7 +58,6 @@ public class PlayerManager {
                 guildMusicManager.getTrackScheduler().queue(audioTrack);
             }
 
-            //TODO: not working currently
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
                 for (AudioTrack track : audioPlaylist.getTracks()) {
