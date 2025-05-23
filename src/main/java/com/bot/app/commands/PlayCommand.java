@@ -12,6 +12,8 @@ import net.dv8tion.jda.api.managers.AudioManager;
 
 public class PlayCommand implements Command {
 
+    // TODO: add automatic searching for songs when message content is not url
+
     private final String name = "play";
     private final String commandName = Prefix.prefix + name;
     private final MessageReceivedEvent event;
