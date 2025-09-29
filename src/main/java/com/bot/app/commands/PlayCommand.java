@@ -32,12 +32,12 @@ public class PlayCommand implements Command {
     @Override
     public void execute() {
         connectToVc(event);
-        play(event.getGuild(), url);
+        play(event, url);
     }
 
-    private void play(Guild guild, String url) {
+    private void play(MessageReceivedEvent event, String url) {
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.play(guild, url);
+        playerManager.play(event, url);
     }
 
     //TODO: add exceptions and handling

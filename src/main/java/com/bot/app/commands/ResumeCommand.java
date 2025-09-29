@@ -21,6 +21,6 @@ public class ResumeCommand implements Command {
     @Override
     public void execute() {
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.resume(event.getGuild());
+        playerManager.resume(event);
     }
 }

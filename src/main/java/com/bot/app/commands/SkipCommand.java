@@ -21,6 +21,6 @@ public class SkipCommand implements Command {
     @Override
     public void execute() {
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.skip(event.getGuild());
+        playerManager.skip(event);
     }
 }

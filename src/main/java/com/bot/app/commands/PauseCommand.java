@@ -21,6 +21,6 @@ public class PauseCommand implements Command {
     @Override
     public void execute() {
         PlayerManager playerManager = PlayerManager.get();
-        playerManager.pause(event.getGuild());
+        playerManager.pause(event);
     }
 }
