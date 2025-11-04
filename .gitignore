@@ -1,3 +1,4 @@
 src/main/resources/.env
 .idea
 **/target
+dependency-reduced-pom.xml
