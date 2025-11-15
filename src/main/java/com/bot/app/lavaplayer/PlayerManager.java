@@ -14,6 +14,10 @@ import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -27,9 +31,11 @@ public class PlayerManager {
     private static final String SPOTIFY_CLIENT_ID = dotenv.get("SPOTIFY_CLIENT_ID");
     private static final String SPOTIFY_CLIENT_SECRET = dotenv.get("SPOTIFY_CLIENT_SECRET");
 
+    private static final String YT_SEARCH_PREFIX = "ytsearch: ";
+
     public PlayerManager() {
         SpotifySourceManager spotifySourceManager = new SpotifySourceManager(null, SPOTIFY_CLIENT_ID, SPOTIFY_CLIENT_SECRET, "AUT", audioPlayerManager);
-        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager();
+        YoutubeAudioSourceManager youtubeAudioSourceManager = new YoutubeAudioSourceManager(true);
 
         audioPlayerManager.registerSourceManager(spotifySourceManager);
         audioPlayerManager.registerSourceManager(youtubeAudioSourceManager);
@@ -53,6 +59,10 @@ public class PlayerManager {
     }
 
     public void play(MessageReceivedEvent event, String trackURL) {
+        var isUrl = isUrl(trackURL);
+        if (!isUrl) {
+            trackURL = YT_SEARCH_PREFIX + trackURL;
+        }
         GuildMusicManager guildMusicManager = getGuildMusicManager(event.getGuild());
         audioPlayerManager.loadItemOrdered(guildMusicManager, trackURL, new AudioLoadResultHandler() {
             @Override
@@ -63,6 +73,13 @@ public class PlayerManager {
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                if (!isUrl) {
+                    // if ytsearch was used, dont add playlist, just one song
+                    var audioTrack = audioPlaylist.getTracks().getFirst();
+                    guildMusicManager.getTrackScheduler().queue(audioTrack);
+                    postSongInfo(event, audioTrack.getInfo());
+                    return;
+                }
                 postPlaylistInfo(event, audioPlaylist);
                 for (AudioTrack track : audioPlaylist.getTracks()) {
                     guildMusicManager.getTrackScheduler().queue(track);
@@ -140,5 +157,14 @@ public class PlayerManager {
         }
 
         event.getChannel().sendMessage(message).queue();
+    }
+
+    private boolean isUrl(String s) {
+        try {
+            new URI(s).toURL();
+            return true;
+        } catch (MalformedURLException | URISyntaxException e) {
+            return false;
+        }
     }
 }
